@@ -2,11 +2,17 @@ var mongodb = require('mongodb');
 var express = require('express');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
-
+var https = require('https');
+var fs = require('fs');
 
 var app = express();
 
 var session = {};
+
+var options = {
+  key: fs.readFileSync('sslcert/server.key'),
+  cert: fs.readFileSync('sslcert/server.crt')
+};
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -219,5 +225,5 @@ setInterval(sessionTimeout, 10000);
 
 app.use('/', router);
 
-app.listen(port);
+https.createServer(options, app).listen(port);
 console.log('Server listening on port: ' + port);

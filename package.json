@@ -7,6 +7,8 @@
     "body-parser": "^1.14.2",
     "crypto": "0.0.3",
     "express": "^4.13.3",
+    "fs": "0.0.2",
+    "https": "^1.0.0",
     "kerberos": "0.0.17",
     "mongodb": "^2.0.52"
   },
