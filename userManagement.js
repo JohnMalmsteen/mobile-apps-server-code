@@ -148,7 +148,7 @@ router.route('/login/').post(function(req, res){
    });
 });
 
-router.route('/saveCharacter/').post(function(req, res){
+router.route('/saveCharacters/').post(function(req, res){
    var bodyJSON = req.body;
    if(bodyJSON.username === undefined || bodyJSON.token === undefined || bodyJSON.savedata === undefined || bodyJSON.username === null || bodyJSON.token === null || bodyJSON.savedata === null){
       res.status(400).json({error: "Malformed JSON body"});
@@ -176,7 +176,7 @@ router.route('/saveCharacter/').post(function(req, res){
    }
 });
 
-router.route('/loadCharacter/:username/:token').get(function(req, res){
+router.route('/loadCharacters/:username/:token').get(function(req, res){
    if(session[req.params.username] === undefined || session[req.params.username] === null){
       res.status(503).json({error: "No valid session"});
    }else{
