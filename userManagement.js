@@ -3,6 +3,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
 var https = require('https');
+var http = require('http');
 var fs = require('fs');
 
 var app = express();
@@ -226,4 +227,6 @@ setInterval(sessionTimeout, 10000);
 app.use('/', router);
 
 https.createServer(options, app).listen(port);
-console.log('Server listening on port: ' + port);
+http.createServer(app).listen(5001);
+console.log('HTTPS Server listening on port: ' + port);
+console.log('HTTP Server listening on port: ' + 5001);
