@@ -6,6 +6,8 @@ var md5sum = crypto.createHash('md5');
 
 var app = express();
 
+var session = {};
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -34,18 +36,24 @@ var port = process.env.PORT || 5000;
 
 var url = 'mongodb://localhost:27017/nebinstower';
 
-console.log(user);
 router.route('/register/').post(function(req, res){
-   if(req.body.username === null || req.body.password === null || req.body.password.length < 5){
+   if(req.body.username === null || req.body.password === null || req.body.password.length < 7){
       //respond with a failure here;
+      res.status(500).json({error: "Error with request, password must be at least 7 characters"});
    }
+   // else if(check if user already exists){
+   //    res.status(500).json({error: "User name already exists"});
+   // }
    else{
       var salt = crypto.randomBytes(64).toString('hex');
       var user = {username: req.body.username, salt: salt, password: md5sum.update(req.body.password + salt).digest('hex')};
+
+      var token = md5sum.update(crypto.randomBytes(64).toString('hex')).digest('hex');
+      session[username] = token;
+
+      res.status(200).json({username: user.username, token: token});
       //put this into the database here
    }
-
-   //should also ensure that the username doesn't already exist;
 });
 
 router.route('/user/').get(function(req, res){
