@@ -177,7 +177,28 @@ router.route('/saveCharacter/').post(function(req, res){
 });
 
 router.route('/loadCharacter/:username/:token').get(function(req, res){
-   
+   if(session[req.params.username] === undefined || session[req.params.username] === null){
+      res.status(503).json({error: "No valid session"});
+   }else{
+      if(req.params.token === session[req.params.username].token){
+         MongoClient.connect(url, function(err, db){
+            if(err){
+               res.status(500).json({error: err});
+            }else{
+               var collection = db.collection('savedGames');
+
+               collection.findOne({username: req.params.username}, function(err, doc){
+                  if(doc === null){
+                     res.status(404).json({message: 'No save game found'});
+                     db.close();
+                  }else{
+                     res.status(200).json(doc.savedata);
+                  }
+               });
+            }
+         });
+      }
+   }
 });
 
 router.route('/').get(function(req, res){
