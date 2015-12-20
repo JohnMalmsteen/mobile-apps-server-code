@@ -38,21 +38,6 @@ var url = 'mongodb://localhost:27017/nebinstower';
 
 var MongoClient = mongodb.MongoClient;
 
-// Use connect method to connect to the Server
-MongoClient.connect(url, function (err, db) {
-  if (err) {
-    console.log('Unable to connect to the mongoDB server. Error:', err);
-  } else {
-    //HURRAY!! We are connected. :)
-    console.log('Connection established to', url);
-
-    // do some work here with the database.
-
-    //Close connection
-    db.close();
-  }
-});
-
 router.route('/register/').post(function(req, res){
    if(req.body.username === null || req.body.password === null || req.body.password.length < 7){
       //respond with a failure here;
@@ -141,6 +126,7 @@ router.route('/login/').post(function(req, res){
             }else{
                if(doc === null){
                   res.status(404).json({error: 'User does not exist'});
+                  db.close();
                }
                else{
                   var md5sum = crypto.createHash('md5');
@@ -153,12 +139,45 @@ router.route('/login/').post(function(req, res){
                   }
                   else{
                      res.status(400).json({error: "Password Incorrect"});
+                     db.close();
                   }
                }
             }
          });
       }
    });
+});
+
+router.route('/saveCharacter/').post(function(req, res){
+   var bodyJSON = req.body;
+   if(bodyJSON.username === undefined || bodyJSON.token === undefined || bodyJSON.savedata === undefined || bodyJSON.username === null || bodyJSON.token === null || bodyJSON.savedata === null){
+      res.status(400).json({error: "Malformed JSON body"});
+   }
+   else{
+      if(session[bodyJSON.username] === undefined || session[bodyJSON.username] === null){
+         res.status(503).json({error: "No valid session"});
+      }else{
+         MongoClient.connect(url, function(err, db){
+            if(err){
+               res.status(500).json({error: err});
+            }else{
+               var collection = db.collection('savedGames');
+
+               collection.update({username: bodyJSON.username}, {username: bodyJSON.username, savedata: bodyJSON.savedata}, {upsert:true, safe:false}, function(err, data){
+                  if(err){
+                     res.status(500).json({error: err});
+                  }else{
+                     res.status(200).json({message: 'Save Successful'});
+                  }
+               });
+            }
+         });
+      }
+   }
+});
+
+router.route('/loadCharacter/:username/:token').get(function(req, res){
+   
 });
 
 router.route('/').get(function(req, res){
