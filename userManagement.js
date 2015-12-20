@@ -36,6 +36,23 @@ var port = process.env.PORT || 5000;
 
 var url = 'mongodb://localhost:27017/nebinstower';
 
+var MongoClient = mongodb.MongoClient;
+
+// Use connect method to connect to the Server
+MongoClient.connect(url, function (err, db) {
+  if (err) {
+    console.log('Unable to connect to the mongoDB server. Error:', err);
+  } else {
+    //HURRAY!! We are connected. :)
+    console.log('Connection established to', url);
+
+    // do some work here with the database.
+
+    //Close connection
+    db.close();
+  }
+});
+
 router.route('/register/').post(function(req, res){
    if(req.body.username === null || req.body.password === null || req.body.password.length < 7){
       //respond with a failure here;
