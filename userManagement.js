@@ -83,7 +83,7 @@ router.route('/register/').post(function(req, res){
                      else {
                         var token = crypto.createHash('md5').update(crypto.randomBytes(64).toString('hex')).digest('hex');
                         session[user.username] = {token: token, timeoutTime: (new Date().getTime() + 1200000)};
-                        res.status(200).json({username: user.username, token: token});
+                        res.status(200).json({token: token});
                         db.close();
                      }
                     });
@@ -123,8 +123,42 @@ router.route('/user/:username').get(function(req, res){
    });
 });
 
-router.route('/login/').get(function(req, res){
+router.route('/login/').post(function(req, res){
    //generate a token and return it to the user and put it on a dictionary of curently valid tokens to be used for accessing the data
+   var postedUsername = req.body.username;
+   var postedPassword = req.body.password;
+
+   MongoClient.connect(url, function(err, db){
+      if(err){
+         res.status(500).json({error: 'Unable to connect to database', message: err});
+      }
+      else{
+         var collection = db.collection('users');
+
+         collection.findOne({username: postedUsername}, fucntion(err, doc){
+            if(err){
+               res.status(500).json({error: err});
+            }else{
+               if(doc === null){
+                  res.status(404).json({error: 'User does not exist'});
+               }
+               else{
+                  var md5sum = crypto.createHash('md5');
+                  var postedPassword = md5sum.update(req.body.postedPassword + doc.salt).digest('hex');
+                  if(postedPassword === doc.password){
+                     var token = crypto.createHash('md5').update(crypto.randomBytes(64).toString('hex')).digest('hex');
+                     session[user.username] = {token: token, timeoutTime: (new Date().getTime() + 1200000)};
+                     res.status(200).json({token: token});
+                     db.close();
+                  }
+                  else{
+                     res.status(400).json({error: "Password Incorrect"});
+                  }
+               }
+            }
+         });
+      }
+   });
 });
 
 router.route('/').get(function(req, res){
