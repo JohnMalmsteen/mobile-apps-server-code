@@ -135,7 +135,7 @@ router.route('/login/').post(function(req, res){
       else{
          var collection = db.collection('users');
 
-         collection.findOne({username: postedUsername}, fucntion(err, doc){
+         collection.findOne({username: postedUsername}, function(err, doc){
             if(err){
                res.status(500).json({error: err});
             }else{
@@ -144,10 +144,10 @@ router.route('/login/').post(function(req, res){
                }
                else{
                   var md5sum = crypto.createHash('md5');
-                  var postedPassword = md5sum.update(req.body.postedPassword + doc.salt).digest('hex');
-                  if(postedPassword === doc.password){
+                  var hashedPassword = md5sum.update(postedPassword + doc.salt).digest('hex');
+                  if(hashedPassword === doc.password){
                      var token = crypto.createHash('md5').update(crypto.randomBytes(64).toString('hex')).digest('hex');
-                     session[user.username] = {token: token, timeoutTime: (new Date().getTime() + 1200000)};
+                     session[postedUsername] = {token: token, timeoutTime: (new Date().getTime() + 1200000)};
                      res.status(200).json({token: token});
                      db.close();
                   }
