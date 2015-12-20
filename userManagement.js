@@ -49,7 +49,7 @@ router.route('/register/').post(function(req, res){
       var user = {username: req.body.username, salt: salt, password: md5sum.update(req.body.password + salt).digest('hex')};
 
       var token = md5sum.update(crypto.randomBytes(64).toString('hex')).digest('hex');
-      session[username] = token;
+      session[username] = {token: token, timeoutTime: (new Date().getTime() + 1200000)};
 
       res.status(200).json({username: user.username, token: token});
       //put this into the database here
@@ -63,3 +63,15 @@ router.route('/user/').get(function(req, res){
 router.route('/login/').get(function(req, res){
    //generate a token and return it to the user and put it on a dictionary of curently valid tokens to be used for accessing the data
 });
+
+function sessionTimeout(){
+   var currentTime = new Date().getTime();
+   //console.log("clearing");
+   for(var user in session){
+      if(user.timeoutTime <= currentTime){
+         delete session.user;
+      }
+   }
+}
+
+setInterval(sessionTimeout, 10000);
