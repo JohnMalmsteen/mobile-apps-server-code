@@ -1,0 +1,19 @@
+{
+  "name": "mobilesapps",
+  "version": "1.0.0",
+  "description": "mobileapps project user management and save/load functionality",
+  "main": "userManagement.js",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "crypto": "0.0.3",
+    "express": "^4.13.3",
+    "kerberos": "0.0.17",
+    "mongodb": "^2.0.52"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John Frizzell",
+  "license": "ISC"
+}
