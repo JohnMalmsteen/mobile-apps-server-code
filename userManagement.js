@@ -183,18 +183,20 @@ router.route('/saveCharacters/').post(function(req, res){
    }
 });
 
-router.route('/loadCharacters/:username/:token').get(function(req, res){
-   if(session[req.params.username] === undefined || session[req.params.username] === null){
+router.route('/loadCharacters/').post(function(req, res){
+   var bodyJSON = req.body;
+
+   if(session[bodyJSON.username] === undefined || session[bodyJSON.username] === null){
       res.status(503).json({error: "No valid session"});
    }else{
-      if(req.params.token === session[req.params.username].token){
+      if(bodyJSON.token === session[bodyJSON.username].token){
          MongoClient.connect(url, function(err, db){
             if(err){
                res.status(500).json({error: err});
             }else{
                var collection = db.collection('savedGames');
 
-               collection.findOne({username: req.params.username}, function(err, doc){
+               collection.findOne({username: bodyJSON.username}, function(err, doc){
                   if(doc === null){
                      res.status(404).json({message: 'No save game found'});
                      db.close();
