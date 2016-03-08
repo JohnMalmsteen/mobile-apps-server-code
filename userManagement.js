@@ -113,6 +113,7 @@ router.route('/user/:username').get(function(req, res){
 
 router.route('/login/').post(function(req, res){
    //generate a token and return it to the user and put it on a dictionary of curently valid tokens to be used for accessing the data
+    console.log(req.body);
    if(req.body.username === undefined || req.body.password === undefined){
       //respond with a failure here;
       res.status(500).json({error: "Error with request, must include {username, password}"});
