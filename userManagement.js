@@ -162,11 +162,11 @@ router.route('/login/').post(function(req, res){
 
 router.route('/saveCharacters/').post(function(req, res){
    var bodyJSON = req.body;
-   if(bodyJSON.username === undefined || bodyJSON.token === undefined || bodyJSON.savedata === undefined || bodyJSON.username === null || bodyJSON.token === null || bodyJSON.savedata === null){
+   if(bodyJSON.username === undefined || bodyJSON.token === undefined || bodyJSON.savedata === undefined){
       res.status(400).json({error: "Malformed JSON body"});
    }
    else{
-      if(session[bodyJSON.username] === undefined || session[bodyJSON.username] === null){
+      if(session[bodyJSON.username] === undefined || session[bodyJSON.username] === null || session[bodyJSON.username].token !== bodyJSON.token){
          res.status(503).json({error: "No valid session"});
       }else{
          MongoClient.connect(url, function(err, db){
@@ -191,10 +191,12 @@ router.route('/saveCharacters/').post(function(req, res){
 router.route('/loadCharacters/').post(function(req, res){
    var bodyJSON = req.body;
 
-   if(session[bodyJSON.username] === undefined || session[bodyJSON.username] === null){
-      res.status(503).json({error: "No valid session"});
+   if(bodyJSON.username === undefined || bodyJSON.token === undefined){
+      res.status(400).json({error: "Malformed JSON body"});
    }else{
-      if(bodyJSON.token === session[bodyJSON.username].token){
+       if(session[bodyJSON.username] === undefined || session[bodyJSON.username].token !== bodyJSON.token){
+          res.status(503).json({error: "No valid session"});
+       }else{
          MongoClient.connect(url, function(err, db){
             if(err){
                res.status(500).json({error: err});
@@ -211,7 +213,8 @@ router.route('/loadCharacters/').post(function(req, res){
                });
             }
          });
-      }
+
+       }
    }
 });
 
@@ -221,7 +224,7 @@ router.route('/').get(function(req, res){
 
 function sessionTimeout(){
    var currentTime = new Date().getTime();
-   console.log("clearing");
+   //console.log("clearing");
    for(var user in session){
       if(session[user].timeoutTime <= currentTime){
          delete session[user];
